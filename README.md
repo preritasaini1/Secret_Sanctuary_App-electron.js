@@ -26,9 +26,18 @@
 
 ---
 
+## 🎬 Demo
+[![Demo Video](https://img.shields.io/badge/▶️%20Watch%20Demo-Google%20Drive-FF0000?style=for-the-badge)](https://drive.google.com/file/d/YOUR_VIDEO_ID/view?usp=sharing)
+
+---
+
 ## 📷 Application Preview
 
-### Login & Security
+### Setup & Security
+![Setup Screen](assets/screenshots/login.png)
+*Setup password and security question*
+
+### Login 
 ![Login Screen](assets/screenshots/login.png)
 *Secure password-protected entry point*
 
@@ -39,6 +48,11 @@
 ### Note Management
 ![Saved Notes View](assets/screenshots/saved_notes.png)
 *Organized view of all your saved thoughts*
+
+### Reset Password & App
+![Reset Paswword](assets/screenshots/saved_notes.png)
+![Reset App](assets/screenshots/saved_notes.png)
+*Secure Reset Password and App Functinality*
 
 ---
 
