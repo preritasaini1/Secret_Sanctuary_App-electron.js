@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      background-image: url('Front_Note.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-family: 'Georgia', serif;
+      width: 400px;
+    }
+
+    .login-container h2 {
+      color: #8b5cf6;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    .login-container p {
+      color: #6b7280;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    .login-container input {
+      padding: 12px;
+      width: 100%;
+      margin-top: 15px;
+      border: 2px solid #8b5cf6;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    .login-container input:focus {
+      outline: none;
+      border-color: #6b46c1;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .login-container button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    .login-container button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .login-container button:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error {
+      color: #ef4444;
+      margin-top: 15px;
+      font-size: 14px;
+      display: none;
+      background: #fef2f2;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+    }
+
+    .forgot-password-link {
+      display: inline-block;
+      margin-top: 15px;
+      color: #8b5cf6;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .forgot-password-link:hover {
+      color: #6b46c1;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>💜 Secret Sanctuary</h2>
+    <p>A quiet place for your loudest thoughts!</p>
+    <input type="password" id="passwordInput" placeholder="Enter your password">
+    <div class="error" id="errorText">Incorrect password. Try again.</div>
+    <button onclick="checkPassword()" id="loginBtn">Login</button>
+    <a href="#" class="forgot-password-link" onclick="goToForgotPassword()">Forgot Password?</a>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    async function checkPassword() {
+      const input = document.getElementById('passwordInput').value;
+      
+      if (!input) {
+        showError('Please enter your password.');
+        return;
+      }
+
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      try {
+        const result = await ipcRenderer.invoke('verify-password', input);
+        
+        if (result.success) {
+          ipcRenderer.send('login-success');
+          ipcRenderer.send('navigate-to', 'index');
+        } else {
+          showError('Incorrect password. Try again.');
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showError('An error occurred. Please try again.');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+      }
+    }
+
+    function showError(message) {
+      const errorText = document.getElementById('errorText');
+      errorText.textContent = message;
+      errorText.style.display = 'block';
+    }
+
+    function goToForgotPassword() {
+      ipcRenderer.send('navigate-to', 'forgot-password');
+    }
+
+    // Add event listener for Enter key
+    document.getElementById('passwordInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        checkPassword();
+      }
+    });
+
+    // Check if setup is complete on load
+    window.addEventListener('load', async function() {
+      try {
+        const setupComplete = await ipcRenderer.invoke('check-setup');
+        if (!setupComplete) {
+          ipcRenderer.send('navigate-to', 'setup');
+        }
+      } catch (error) {
+        console.error('Error checking setup status:', error);
+      }
+    });
+  </script>
+</body>
+</html>

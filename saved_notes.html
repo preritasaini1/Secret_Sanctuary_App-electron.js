@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="saved_notes_style.css">
+</head>
+<body>
+  <button class="back-btn" onclick="goBack()">← Back</button>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">💌 Your Storybook</h1>
+      <p class="subtitle">Every note, a piece of you!</p>
+    </div>
+    <div class="notes-header">
+      <span class="notes-count" id="notesCount">Loading notes...</span>
+      <button class="refresh-btn" onclick="loadNotes()">🔄 Refresh</button>
+    </div>
+    <div id="notesContainer"></div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal">
+    <div>
+      <p id="confirmText">Are you sure you want to delete this note?</p>
+      <button id="confirmYes">Yes</button>
+      <button id="confirmNo">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    // Add to new_note.html, saved_notes.html, index.html
+    window.addEventListener('load', async function() {
+      const { ipcRenderer } = require('electron');
+      const isAuth = await ipcRenderer.invoke('check-auth');
+      if (!isAuth) {
+        ipcRenderer.send('navigate-to', 'login');
+      }
+    });
+    let noteToDeleteId = null;
+
+    async function loadNotes() {
+      const container = document.getElementById('notesContainer');
+      const countElement = document.getElementById('notesCount');
+      try {
+        const notes = await ipcRenderer.invoke('get-notes');
+        countElement.textContent = `${notes.length} note${notes.length !== 1 ? 's' : ''} found`;
+        if (notes.length === 0) {
+          container.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">No notes yet</div><div class="empty-subtitle">Start writing to see your notes here</div></div>`;
+          return;
+        }
+        container.innerHTML = '';
+        notes.forEach(note => {
+          const content = typeof note === 'string' ? note : note.content;
+          const created = typeof note === 'string' ? 'Unknown' : (note.created || new Date(note.timestamp).toLocaleDateString());
+          const wordCount = typeof note === 'string' ? content.split(/\s+/).length : note.wordCount;
+          const noteId = note.id || note.timestamp || content.slice(0, 20);
+          const preview = content.length > 200 ? content.substring(0, 200) + '...' : content;
+          const noteElement = document.createElement('div');
+          noteElement.className = 'note';
+          noteElement.innerHTML = `
+            <div class="note-content">${preview}</div>
+            <div class="note-meta">
+              <span class="note-date">Created: ${created} | ${wordCount} words</span>
+              <div class="note-actions">
+                <button class="action-btn" onclick="expandNote('${noteId}', \`${content.replace(/`/g, '\\`')}\`)" title="Expand">🔍</button>
+                <button class="action-btn delete-btn" onclick="showConfirmModal('${noteId}')" title="Delete">🗑️</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(noteElement);
+        });
+      } catch (error) {
+        console.error('Error loading notes:', error);
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error loading notes</div><div class="empty-subtitle">Please try refreshing the page</div></div>`;
+      }
+    }
+
+    function expandNote(noteId, content) {
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 20px;
+      `;
+      modal.innerHTML = `
+        <div style="
+          background: #fff;
+          border-radius: 20px;
+          padding: 30px;
+          max-width: 700px;
+          width: 100%;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+          position: relative;
+          animation: fadeIn 0.3s ease;
+        ">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0; font-weight:700; color:#6b46c1; font-family: 'Georgia', serif;">Your Voice:</h2>
+            <button style="
+              background:none;
+              border:none;
+              font-size: 22px;
+              cursor:pointer;
+              color:#6b7280;
+              font-weight:600;
+              border-radius:50%;
+              width:35px;
+              height:35px;
+              line-height:35px;
+              text-align:center;
+            " id="closeExpand">&times;</button>
+          </div>
+          <pre class="expanded-note-content" style="white-space: pre-wrap; font-size: 15px; color:#374151; font-family: 'Georgia', serif;">${content}</pre>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      document.getElementById('closeExpand').onclick = () => {
+        modal.remove();
+      };
+    }
+
+    function showConfirmModal(noteId) {
+      noteToDeleteId = noteId;
+      const modal = document.getElementById('confirmModal');
+      modal.classList.add('active');
+    }
+
+    function hideConfirmModal() {
+      noteToDeleteId = null;
+      const modal = document.getElementById('confirmModal');
+      modal.classList.remove('active');
+    }
+
+    document.getElementById('confirmYes').addEventListener('click', async () => {
+      if (noteToDeleteId) {
+        try {
+          await ipcRenderer.invoke('delete-note', noteToDeleteId);
+          hideConfirmModal();
+          loadNotes();
+        } catch (error) {
+          console.error('Error deleting note:', error);
+          alert('Failed to delete note. Please try again.');
+          hideConfirmModal();
+        }
+      }
+    });
+
+    document.getElementById('confirmNo').addEventListener('click', () => {
+      hideConfirmModal();
+    });
+
+    function goBack() {
+      // Adjust according to your app navigation logic
+      window.location.href = 'index.html';
+    }
+
+    // Load notes on page load
+    loadNotes();
+
+  </script>
+</body>
+</html>

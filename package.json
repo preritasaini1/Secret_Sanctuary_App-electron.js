@@ -1,0 +1,128 @@
+{
+  "name": "secret-sanctuary",
+  "version": "1.0.0",
+  "description": "A secure note-taking application built with Electron.js",
+  "main": "main.js",
+  "homepage": "./",
+  "author": "Prerita Saini",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging",
+    "build": "node build.js",
+    "build-win": "node build.js win",
+    "build-mac": "node build.js mac",
+    "build-linux": "node build.js linux",
+    "build-all": "node build.js all",
+    "build-clean": "node build.js --clean",
+    "dist": "electron-builder",
+    "dist-win": "electron-builder --win",
+    "dist-mac": "electron-builder --mac",
+    "dist-linux": "electron-builder --linux",
+    "dist-all": "electron-builder --win --mac --linux",
+    "clean": "rimraf dist build node_modules/.cache",
+    "test": "echo \"No tests specified\" && exit 0",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "electron",
+    "notes",
+    "diary",
+    "secure",
+    "password-protected",
+    "journal"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/secret-sanctuary.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/secret-sanctuary/issues"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "build": {
+    "appId": "com.secret.sanctuary.app",
+    "productName": "Secret Sanctuary",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "!dist/**/*",
+      "!.git/**/*",
+      "!*.log",
+      "!README.md",
+      "!.gitignore",
+      "!build.js",
+      "!scripts/**/*"
+    ],
+    "asar": false,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.png",
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Secret Sanctuary"
+    },
+    "extraResources": [
+      {
+        "from": "assets/",
+        "to": "assets/",
+        "filter": ["**/*"]
+      }
+    ],
+    "fileAssociations": [
+      {
+        "ext": "ssnote",
+        "name": "Secret Sanctuary Note",
+        "description": "Secret Sanctuary Note File"
+      }
+    ]
+  }
+}

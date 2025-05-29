@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Notes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-image: url('Front_Note.jpg');
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 3em;
+      color: #4b2e39;
+      margin-bottom: 60px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 18px 40px;
+      margin: 15px;
+      font-size: 20px;
+      background-color: #b57edc;
+      color: white;
+      border: none;
+      border-radius: 50px; /* Oval shape */
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #a06fcf;
+      transform: translateY(-3px);
+    }
+
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.6) 0%, rgba(118, 75, 162, 0.6) 100%);
+      color: rgba(255, 255, 255, 0.9);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin: 0;
+      opacity: 0.8;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      background: linear-gradient(135deg, rgba(90, 111, 216, 0.7) 0%, rgba(106, 65, 144, 0.7) 100%);
+      opacity: 1;
+    }
+
+    .logout-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const { ipcRenderer } = require('electron');
+    
+    // Check authentication on load
+    window.addEventListener('load', async function() {
+      try {
+        const setupComplete = await ipcRenderer.invoke('check-setup');
+        if (!setupComplete) {
+          ipcRenderer.send('navigate-to', 'setup');
+          return;
+        }
+
+        const isAuth = await ipcRenderer.invoke('check-auth');
+        if (!isAuth) {
+          ipcRenderer.send('navigate-to', 'login');
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        ipcRenderer.send('navigate-to', 'login');
+      }
+    });
+
+    function logout() {
+      ipcRenderer.send('navigate-to', 'login');
+    }
+  </script>
+  
+  <button class="logout-btn" onclick="logout()">← Logout</button>
+  
+  <h1>Hidden Hearts</h1>
+  <button onclick="location.href='new_note.html'">➕ New Note</button>
+  <button onclick="location.href='saved_notes.html'">🧾 Saved Notes</button>
+</body>
+</html>

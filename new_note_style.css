@@ -1,0 +1,297 @@
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-image: url('Note_taking.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    .note-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .title {
+      text-align: center;
+      color: #6b46c1;
+      font-size: 28px;
+      font-family: 'Georgia', serif;
+      font-weight: 600;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .textarea-container {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 300px;
+      padding: 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: 15px;
+      font-size: 16px;
+      font-family: 'Georgia', serif;
+      line-height: 1.6;
+      resize: vertical;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.9);
+      color: #374151;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      background: rgba(255, 255, 255, 1);
+    }
+
+    textarea::placeholder {
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+      font-family: 'Arial', serif;
+      color: white;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-save:active {
+      transform: translateY(0);
+    }
+
+    .btn-view {
+      background: rgba(139, 92, 246, 0.1);
+      font-family: 'Arial', serif;
+      color: #8b5cf6;
+      border: 2px solid #8b5cf6;
+    }
+
+    .btn-view:hover {
+      background: #8b5cf6;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      background: rgba(0, 0, 0, 0.05);
+      color: #6b46c1;
+      border: 2px solid #6b46c1;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .btn-back:hover {
+      background: #6b46c1;
+      color: white;
+    }
+
+    .success-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .success-message.show {
+      transform: translateX(0);
+    }
+
+    /* Beautiful Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px 35px 35px;
+      border-radius: 20px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      position: relative;
+      animation: slideUp 0.3s ease;
+    }
+
+    .modal-text {
+      color: #374151;
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 35px;
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 100px;
+    }
+
+    .modal-btn-primary {
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+      color: white;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .modal-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .modal-btn-secondary {
+      background: #f3f4f6;
+      color: #6b7280;
+      border: 1px solid #e5e7eb;
+    }
+
+    .modal-btn-secondary:hover {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .note-container {
+        padding: 25px;
+        margin: 10px;
+      }
+
+      .title {
+        font-size: 24px;
+      }
+
+      textarea {
+        height: 250px;
+        padding: 15px;
+      }
+
+      .button-container {
+        flex-direction: column;
+      }
+
+      .btn-back {
+        top: 10px;
+        left: 10px;
+        padding: 8px 15px;
+        font-size: 13px;
+      }
+
+      .modal-content {
+        padding: 30px 25px 25px;
+      }
+
+      .modal-text {
+        font-size: 16px;
+        margin-bottom: 25px;
+      }
+
+      .modal-buttons {
+        flex-direction: column;
+      }
+
+      .modal-btn {
+        width: 100%;
+      }
+    }

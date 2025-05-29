@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="new_note_style.css">
+</head>
+<body>
+
+  <!-- Back Button -->
+  <button class="btn-back">← Back</button>
+
+  <div class="note-container">
+    <h1 class="title">✨ Write from the Heart ✨</h1>
+    <div class="textarea-container">
+      <textarea id="note" placeholder="Start writing your thoughts..."></textarea>
+    </div>
+    <div class="button-container">
+      <button class="btn btn-save">💾 Save Note</button>
+      <button class="btn btn-view">📝 View Notes</button>
+    </div>
+  </div>
+
+  <div id="successMessage" class="success-message">
+    ✅ Note saved successfully!
+  </div>
+
+  <!-- Beautiful Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-content">
+      <p id="confirmText" class="modal-text"></p>
+      <div class="modal-buttons">
+        <button id="confirmYes" class="modal-btn modal-btn-primary">Yes</button>
+        <button id="confirmNo" class="modal-btn modal-btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    // Add to new_note.html, saved_notes.html, index.html
+    window.addEventListener('load', async function() {
+      const { ipcRenderer } = require('electron');
+      const isAuth = await ipcRenderer.invoke('check-auth');
+      if (!isAuth) {
+        ipcRenderer.send('navigate-to', 'login');
+      }
+    });
+    const textarea = document.getElementById('note');
+
+    function saveNote() {
+      const note = textarea.value.trim();
+      if (!note) {
+        alert('Please write something before saving!');
+        return;
+      }
+
+      ipcRenderer.send('save-note', note);
+
+      ipcRenderer.once('note-saved', (event, response) => {
+        if (response.success) {
+          showSuccessMessage();
+          textarea.value = '';
+        } else {
+          alert('Error saving note: ' + response.error);
+        }
+      });
+    }
+
+    function showSuccessMessage() {
+      const message = document.getElementById('successMessage');
+      message.classList.add('show');
+      setTimeout(() => {
+        message.classList.remove('show');
+      }, 3000);
+    }
+
+    function showConfirm(message, callback) {
+      const modal = document.getElementById('confirmModal');
+      const text = document.getElementById('confirmText');
+      const yes = document.getElementById('confirmYes');
+      const no = document.getElementById('confirmNo');
+
+      text.textContent = message;
+      modal.style.display = 'flex';
+
+      yes.onclick = () => {
+        modal.style.display = 'none';
+        callback(true);
+      };
+
+      no.onclick = () => {
+        modal.style.display = 'none';
+        textarea.focus();
+        callback(false);
+      };
+    }
+
+    function goBack() {
+      const note = textarea.value.trim();
+      if (note.length > 0) {
+        showConfirm("Are you sure you want to go back without saving?", (confirmed) => {
+          if (confirmed) {
+            ipcRenderer.send('navigate-to', 'index');
+          }
+        });
+      } else {
+        ipcRenderer.send('navigate-to', 'index');
+      }
+    }
+
+    function viewNotes() {
+      const note = textarea.value.trim();
+      if (note.length > 0) {
+        showConfirm("You have unsaved changes. Still want to view saved notes?", (confirmed) => {
+          if (confirmed) {
+            ipcRenderer.send('navigate-to', 'saved-notes');
+          }
+        });
+      } else {
+        ipcRenderer.send('navigate-to', 'saved-notes');
+      }
+    }
+
+    // Event bindings
+    document.querySelector('.btn-save').addEventListener('click', saveNote);
+    document.querySelector('.btn-view').addEventListener('click', viewNotes);
+    document.querySelector('.btn-back').addEventListener('click', goBack);
+
+    // Auto-resize textarea
+    textarea.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.max(300, this.scrollHeight) + 'px';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      background-image: url('Front_Note.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .setup-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-family: 'Georgia', serif;
+      width: 400px;
+    }
+
+    .setup-container h2 {
+      color: #8b5cf6;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    .setup-container p {
+      color: #6b7280;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    .setup-container input, .setup-container select {
+      padding: 12px;
+      width: 100%;
+      margin-top: 15px;
+      border: 2px solid #8b5cf6;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    .setup-container input:focus, .setup-container select:focus {
+      outline: none;
+      border-color: #6b46c1;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .setup-container button {
+      margin-top: 25px;
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #8b5cf6, #a855f7);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    .setup-container button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+    }
+
+    .setup-container button:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error {
+      color: #ef4444;
+      margin-top: 15px;
+      font-size: 14px;
+      display: none;
+      background: #fef2f2;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+    }
+
+    .success {
+      color: #10b981;
+      margin-top: 15px;
+      font-size: 14px;
+      display: none;
+      background: #f0fdf4;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #bbf7d0;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #374151;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .password-strength {
+      margin-top: 5px;
+      font-size: 12px;
+      padding: 5px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .strength-weak {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .strength-medium {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fed7aa;
+    }
+
+    .strength-strong {
+      background: #f0fdf4;
+      color: #059669;
+      border: 1px solid #bbf7d0;
+    }
+  </style>
+</head>
+<body>
+  <div class="setup-container">
+    <h2>🔐 Welcome to Secret Sanctuary</h2>
+    <p>Set up your personal password and security question to get started!</p>
+    
+    <form id="setupForm">
+      <div class="form-group">
+        <label for="newPassword">Create Password:</label>
+        <input type="password" id="newPassword" placeholder="Enter your new password" required>
+        <div id="passwordStrength" class="password-strength"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="securityQuestion">Security Question:</label>
+        <select id="securityQuestion" required>
+          <option value="">Choose a security question</option>
+          <option value="pet">What was the name of your first pet?</option>
+          <option value="band">What is your favorite song band?</option>
+          <option value="city">In what city were you born?</option>
+          <option value="friend">What was the name of your best friend in childhood?</option>
+          <option value="book">What is your favorite book?</option>
+          <option value="food">What is your favorite food?</option>
+          <option value="color">What is your favorite color?</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="securityAnswer">Security Answer:</label>
+        <input type="text" id="securityAnswer" placeholder="Enter your answer" required>
+      </div>
+
+      <div class="error" id="errorText"></div>
+      <div class="success" id="successText"></div>
+
+      <button type="submit" id="setupBtn">Complete Setup</button>
+    </form>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const passwordInput = document.getElementById('newPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const strengthIndicator = document.getElementById('passwordStrength');
+    const setupForm = document.getElementById('setupForm');
+    const errorText = document.getElementById('errorText');
+    const successText = document.getElementById('successText');
+    const setupBtn = document.getElementById('setupBtn');
+
+    // Password strength checker
+    passwordInput.addEventListener('input', function() {
+      const password = this.value;
+      const strength = checkPasswordStrength(password);
+      
+      if (password.length > 0) {
+        strengthIndicator.style.display = 'block';
+        strengthIndicator.className = 'password-strength';
+        
+        if (strength.score < 2) {
+          strengthIndicator.classList.add('strength-weak');
+          strengthIndicator.textContent = `Weak: ${strength.feedback}`;
+        } else if (strength.score < 4) {
+          strengthIndicator.classList.add('strength-medium');
+          strengthIndicator.textContent = `Medium: ${strength.feedback}`;
+        } else {
+          strengthIndicator.classList.add('strength-strong');
+          strengthIndicator.textContent = 'Strong password!';
+        }
+      } else {
+        strengthIndicator.style.display = 'none';
+      }
+    });
+
+    function checkPasswordStrength(password) {
+      let score = 0;
+      let feedback = [];
+
+      if (password.length >= 8) score++;
+      else feedback.push('at least 8 characters');
+
+      if (/[a-z]/.test(password)) score++;
+      else feedback.push('lowercase letters');
+
+      if (/[A-Z]/.test(password)) score++;
+      else feedback.push('uppercase letters');
+
+      if (/[0-9]/.test(password)) score++;
+      else feedback.push('numbers');
+
+      if (/[^A-Za-z0-9]/.test(password)) score++;
+      else feedback.push('special characters');
+
+      return {
+        score: score,
+        feedback: feedback.length > 0 ? 'Add ' + feedback.join(', ') : 'Strong password!'
+      };
+    }
+
+    function showError(message) {
+      errorText.textContent = message;
+      errorText.style.display = 'block';
+      successText.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      successText.textContent = message;
+      successText.style.display = 'block';
+      errorText.style.display = 'none';
+    }
+
+    setupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const securityQuestion = document.getElementById('securityQuestion').value;
+      const securityAnswer = document.getElementById('securityAnswer').value.trim();
+
+      // Validation
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters long.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError('Passwords do not match.');
+        return;
+      }
+
+      if (!securityQuestion) {
+        showError('Please select a security question.');
+        return;
+      }
+
+      if (securityAnswer.length < 2) {
+        showError('Security answer must be at least 2 characters long.');
+        return;
+      }
+
+      setupBtn.disabled = true;
+      setupBtn.textContent = 'Setting up...';
+
+      try {
+        const result = await ipcRenderer.invoke('setup-account', {
+          password: password,
+          securityQuestion: securityQuestion,
+          securityAnswer: securityAnswer.toLowerCase() // Store in lowercase for consistency
+        });
+
+        if (result.success) {
+          showSuccess('Account setup successful! Redirecting to login...');
+          setTimeout(() => {
+            ipcRenderer.send('navigate-to', 'login');
+          }, 2000);
+        } else {
+          showError(result.error || 'Setup failed. Please try again.');
+          setupBtn.disabled = false;
+          setupBtn.textContent = 'Complete Setup';
+        }
+      } catch (error) {
+        console.error('Setup error:', error);
+        showError('An error occurred during setup. Please try again.');
+        setupBtn.disabled = false;
+        setupBtn.textContent = 'Complete Setup';
+      }
+    });
+
+    // Check if setup is already complete on load
+    window.addEventListener('load', async function() {
+      try {
+        const setupComplete = await ipcRenderer.invoke('check-setup');
+        if (setupComplete) {
+          ipcRenderer.send('navigate-to', 'login');
+        }
+      } catch (error) {
+        console.error('Error checking setup status:', error);
+      }
+    });
+  </script>
+</body>
+</html>

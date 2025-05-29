@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      background-image: url('Front_Note.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .reset-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      font-family: 'Georgia', serif;
+      width: 450px;
+      border: 2px solid #ef4444;
+    }
+
+    .reset-container h2 {
+      color: #dc2626;
+      margin-bottom: 10px;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .warning-icon {
+      font-size: 28px;
+      color: #ef4444;
+    }
+
+    .reset-container p {
+      color: #6b7280;
+      margin-bottom: 25px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .warning-box {
+      background: #fef2f2;
+      border: 2px solid #fecaca;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+      color: #dc2626;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #374151;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .reset-container input, .reset-container select {
+      padding: 12px;
+      width: 100%;
+      margin-top: 10px;
+      border: 2px solid #dc2626;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    .reset-container input:focus, .reset-container select:focus {
+      outline: none;
+      border-color: #b91c1c;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+
+    .btn-cancel {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: #4b5563;
+      transform: translateY(-2px);
+    }
+
+    .btn-verify {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+    }
+
+    .btn-verify:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .reset-options {
+      text-align: left;
+      margin: 20px 0;
+      display: none;
+    }
+
+    .reset-options.show {
+      display: block;
+    }
+
+    .option-group {
+      margin: 15px 0;
+      padding: 15px;
+      border: 2px solid #fecaca;
+      border-radius: 10px;
+      background: #fef2f2;
+    }
+
+    .option-group input[type="radio"] {
+      width: auto;
+      margin-right: 10px;
+      margin-top: 0;
+    }
+
+    .option-group label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 0;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .option-description {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 5px;
+      margin-left: 25px;
+    }
+
+    .error {
+      color: #ef4444;
+      margin-top: 15px;
+      font-size: 14px;
+      display: none;
+      background: #fef2f2;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="reset-container">
+    <!-- Step 1: Security Verification -->
+    <div id="step1" class="step active">
+      <h2>
+        <span class="warning-icon">⚠️</span>
+        Security Verification Required
+      </h2>
+      <p>To protect your data, please answer your security question before proceeding with reset.</p>
+
+      <div class="warning-box">
+        <strong>Warning:</strong> This action will reset app settings and may delete your data permanently.
+      </div>
+
+      <div class="form-group">
+        <label id="securityQuestionLabel" for="securityAnswer">Security Question:</label>
+        <input type="text" id="securityAnswer" placeholder="Enter your answer" required>
+      </div>
+
+      <div class="error" id="errorText1"></div>
+
+      <div class="button-group">
+        <button class="btn btn-cancel" onclick="cancelReset()">Cancel</button>
+        <button class="btn btn-verify" onclick="verifySecurityAnswer()" id="verifyBtn">Verify & Continue</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Reset Options -->
+    <div id="step2" class="step">
+      <h2>
+        <span class="warning-icon">🔄</span>
+        Choose Reset Option
+      </h2>
+      <p>Security verified. Please choose what you want to reset:</p>
+
+      <div class="reset-options show">
+        <div class="option-group">
+          <label>
+            <input type="radio" name="resetType" value="setup-only" checked>
+            <div>
+              <strong>Reset Setup Only</strong>
+              <div class="option-description">Reset password and security settings. Keep all saved notes.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="option-group">
+          <label>
+            <input type="radio" name="resetType" value="everything">
+            <div>
+              <strong>Reset Everything</strong>
+              <div class="option-description">Reset all settings AND permanently delete all saved notes.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <strong>Final Warning:</strong> This action cannot be undone. Make sure you have backed up any important notes.
+      </div>
+
+      <div class="error" id="errorText2"></div>
+
+      <div class="button-group">
+        <button class="btn btn-cancel" onclick="cancelReset()">Cancel</button>
+        <button class="btn btn-verify" onclick="performReset()" id="resetBtn">Confirm Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    
+    let securityQuestionData = null;
+
+    // Load security question on page load
+    window.addEventListener('load', async function() {
+      try {
+        const result = await ipcRenderer.invoke('get-security-question');
+        if (result.success) {
+          securityQuestionData = result.data;
+          document.getElementById('securityQuestionLabel').textContent = 
+            'Security Question: ' + getQuestionText(result.data.question);
+        } else {
+          showError1('Unable to load security question. Please contact support.');
+          document.getElementById('verifyBtn').disabled = true;
+        }
+      } catch (error) {
+        console.error('Error loading security question:', error);
+        showError1('An error occurred. Please try again.');
+      }
+
+      // Block access to protected features from menu
+      blockProtectedFeatures();
+    });
+
+    function blockProtectedFeatures() {
+      // Override menu shortcuts and navigation attempts
+      window.addEventListener('keydown', function(event) {
+        // Block Ctrl+N (New Note) and Ctrl+O (View Notes)
+        if ((event.ctrlKey || event.metaKey) && (event.key === 'n' || event.key === 'o')) {
+          event.preventDefault();
+          showAuthRequiredDialog();
+        }
+      });
+
+      // Listen for navigation attempts from menu
+      ipcRenderer.on('show-auth-required', () => {
+        showAuthRequiredDialog();
+      });
+    }
+
+    function showAuthRequiredDialog() {
+      alert('Please complete the reset process or login first to access this feature.');
+    }
+
+    function getQuestionText(questionKey) {
+      const questions = {
+        'pet': 'What was the name of your first pet?',
+        'band': 'What is your favorite song band?',
+        'city': 'In what city were you born?',
+        'friend': 'What was the name of your best friend in childhood?',
+        'book': 'What is your favorite book?',
+        'food': 'What is your favorite food?',
+        'color': 'What is your favorite color?'
+      };
+      return questions[questionKey] || questionKey;
+    }
+
+    function showError1(message) {
+      const errorText = document.getElementById('errorText1');
+      errorText.textContent = message;
+      errorText.style.display = 'block';
+    }
+
+    function showError2(message) {
+      const errorText = document.getElementById('errorText2');
+      errorText.textContent = message;
+      errorText.style.display = 'block';
+    }
+
+    function hideErrors() {
+      document.getElementById('errorText1').style.display = 'none';
+      document.getElementById('errorText2').style.display = 'none';
+    }
+
+    async function verifySecurityAnswer() {
+      const answer = document.getElementById('securityAnswer').value.trim();
+      
+      if (!answer) {
+        showError1('Please enter your security answer.');
+        return;
+      }
+
+      const verifyBtn = document.getElementById('verifyBtn');
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = 'Verifying...';
+
+      try {
+        const result = await ipcRenderer.invoke('verify-security-answer', answer);
+        
+        if (result.success) {
+          // Move to step 2
+          document.getElementById('step1').classList.remove('active');
+          document.getElementById('step2').classList.add('active');
+          hideErrors();
+        } else {
+          showError1('Incorrect answer. Please try again.');
+          // Reset button state
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = 'Verify & Continue';
+        }
+      } catch (error) {
+        console.error('Error verifying security answer:', error);
+        showError1('An error occurred. Please try again.');
+        // Reset button state
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Verify & Continue';
+      }
+    }
+
+    async function performReset() {
+      const selectedOption = document.querySelector('input[name="resetType"]:checked').value;
+      
+      const resetBtn = document.getElementById('resetBtn');
+      resetBtn.disabled = true;
+      resetBtn.textContent = 'Resetting...';
+
+      try {
+        let resetOptions = {};
+        
+        if (selectedOption === 'setup-only') {
+          resetOptions = { clearNotes: false };
+        } else if (selectedOption === 'everything') {
+          resetOptions = { clearAll: true };
+        }
+
+        const result = await ipcRenderer.invoke('reset-app', resetOptions);
+        
+        if (result.success) {
+          // Show success and restart app
+          alert('Reset completed successfully! The app will restart now.');
+          ipcRenderer.send('restart-app');
+        } else {
+          showError2(result.error || 'Failed to reset app. Please try again.');
+          // Reset button state
+          resetBtn.disabled = false;
+          resetBtn.textContent = 'Confirm Reset';
+        }
+      } catch (error) {
+        console.error('Error resetting app:', error);
+        showError2('An error occurred during reset. Please try again.');
+        // Reset button state
+        resetBtn.disabled = false;
+        resetBtn.textContent = 'Confirm Reset';
+      }
+    }
+
+    function resetFormStates() {
+  // Reset input field
+  const securityInput = document.getElementById('securityAnswer');
+  securityInput.value = '';
+  securityInput.disabled = false;
+  // Remove any existing focus and re-focus after a brief delay
+  securityInput.blur();
+  setTimeout(() => {
+    securityInput.focus();
+  }, 100);
+
+  // Reset buttons
+  const verifyBtn = document.getElementById('verifyBtn');
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = 'Verify & Continue';
+
+  const resetBtn = document.getElementById('resetBtn');
+  resetBtn.disabled = false;
+  resetBtn.textContent = 'Confirm Reset';
+
+  // Reset steps
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step2').classList.remove('active');
+
+  // Hide errors
+  hideErrors();
+
+  // Reset radio buttons
+  document.querySelector('input[name="resetType"][value="setup-only"]').checked = true;
+}
+
+// Also update the cancelReset function to handle the dialog better
+function cancelReset() {
+  // Use a custom confirmation instead of the native confirm dialog
+  showCancelConfirmation();
+}
+
+function showCancelConfirmation() {
+  // Create a custom modal dialog
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  `;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    font-family: inherit;
+  `;
+
+  modal.innerHTML = `
+    <h3 style="color: #dc2626; margin-bottom: 15px;">Cancel Reset Process</h3>
+    <p style="color: #6b7280; margin-bottom: 25px;">Are you sure you want to cancel the reset process?</p>
+    <div style="display: flex; gap: 15px; justify-content: center;">
+      <button id="cancelNo" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer;">No, Continue Reset</button>
+      <button id="cancelYes" style="padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer;">Yes, Cancel</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Handle button clicks
+  document.getElementById('cancelNo').onclick = () => {
+    document.body.removeChild(overlay);
+    // Ensure the security input is focusable
+    const securityInput = document.getElementById('securityAnswer');
+    setTimeout(() => {
+      securityInput.focus();
+    }, 100);
+  };
+
+  document.getElementById('cancelYes').onclick = () => {
+    document.body.removeChild(overlay);
+    // Reset all form states before navigating
+    resetFormStates();
+    ipcRenderer.send('navigate-to', 'login');
+  };
+
+  // Close on overlay click
+  overlay.onclick = (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+      const securityInput = document.getElementById('securityAnswer');
+      setTimeout(() => {
+        securityInput.focus();
+      }, 100);
+    }
+  };
+}
+  </script>
+</body>
+</html>
