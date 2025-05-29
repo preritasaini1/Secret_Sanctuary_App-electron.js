@@ -51,7 +51,9 @@
 
 ### Reset Password & App
 ![Reset Paswword](assets/screenshots/reset_password.png)
+
 ![Reset App](assets/screenshots/reset_app.png)
+
 ![Reset App2](assets/screenshots/reset_app2.png)
 *Secure Reset Password and App Functinality*
 
