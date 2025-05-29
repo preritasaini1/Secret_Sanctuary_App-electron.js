@@ -34,7 +34,7 @@
 ## 📷 Application Preview
 
 ### Setup & Security
-![Setup Screen](assets/screenshots/login.png)
+![Setup Screen](assets/screenshots/setup.png)
 *Setup password and security question*
 
 ### Login 
@@ -42,7 +42,7 @@
 *Secure password-protected entry point*
 
 ### Note Creation
-![New Note Interface](assets/screenshots/new_note.png)
+![New Note Interface](assets/screenshots/note.png)
 *Clean, distraction-free writing environment*
 
 ### Note Management
@@ -50,8 +50,9 @@
 *Organized view of all your saved thoughts*
 
 ### Reset Password & App
-![Reset Paswword](assets/screenshots/saved_notes.png)
-![Reset App](assets/screenshots/saved_notes.png)
+![Reset Paswword](assets/screenshots/reset_password.png)
+![Reset App](assets/screenshots/reset_app.png)
+![Reset App2](assets/screenshots/reset_app2.png)
 *Secure Reset Password and App Functinality*
 
 ---
