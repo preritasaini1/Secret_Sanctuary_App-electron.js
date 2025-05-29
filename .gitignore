@@ -1,0 +1,22 @@
+# Dependency folders
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment config
+.env
+
+# Electron Builder junk (optional)
+*.dmg
+*.exe
+*.AppImage
+*.deb
+*.rpm
